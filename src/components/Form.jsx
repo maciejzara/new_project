@@ -12,7 +12,7 @@ export const Form = ({
   locations,
   setLocations,
 }) => {
-  // Add rendering Table after adding record - same for Locations
+  // Add new Level
   const addLevels = async (e) => {
     e.preventDefault();
     const response = await fetch("https://strapi-km.herokuapp.com/api/levels", {
@@ -34,6 +34,7 @@ export const Form = ({
     e.target.reset();
   };
 
+  // ADD new location
   const addLocations = async (e) => {
     e.preventDefault();
     const response = await fetch(
@@ -72,6 +73,7 @@ export const Form = ({
                 Name
               </label>
               <div className="control">
+                <p>Cokolwiek</p>
                 <input
                   type="text"
                   id="name"
