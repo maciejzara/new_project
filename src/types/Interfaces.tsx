@@ -18,10 +18,14 @@ export interface LocationsTypesObject {
 }
 
 export interface LocationsTypes {
+  name: string;
   longitude: string;
   latitude: string;
   continent: string;
   country: string;
+  levels: {
+    data: LevelsTypeObject[];
+  };
 }
 
 export interface Form_Table_Props {
@@ -30,20 +34,3 @@ export interface Form_Table_Props {
   locations: LocationsTypesObject[];
   setLocations: React.Dispatch<React.SetStateAction<LocationsTypesObject[]>>;
 }
-
-// export interface LevelsProps {
-//   levels: LevelsTypes[];
-//   setLevels: React.Dispatch<React.SetStateAction<LevelsTypes>>;
-//   //   setLevels: (levels: LevelsTypes[]) => void;
-// }
-
-// export interface LocationProps {
-//   locations: LocationsTypes[];
-//   setLocations: React.Dispatch<React.SetStateAction<LocationsTypes>>;
-//   //   setLocations: (locations: LocationsTypes[]) => void;
-// }
-
-// export interface FormProps {
-//   levelsProps: LevelsProps;
-//   locationProps: LocationProps;
-// }

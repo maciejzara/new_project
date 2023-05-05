@@ -58,6 +58,7 @@ export const Form: React.FC<Form_Table_Props> = ({
 
   const addLocations = async (e: any) => {
     e.preventDefault();
+    const name = e.target.longitude.name;
     const longitude = e.target.longitude.value;
     const latitude = e.target.latitude.value;
     const continent = e.target.continent.value;
@@ -137,6 +138,20 @@ export const Form: React.FC<Form_Table_Props> = ({
             </h1>
 
             <div className="field">
+              <label htmlFor="name" className="label has-text-white">
+                Name
+              </label>
+              <div className="control">
+                <input
+                  id="name"
+                  onChange={handleLocationChange}
+                  className="input is-primary is-small"
+                  autoComplete="off"
+                ></input>
+              </div>
+            </div>
+
+            <div className="field">
               <label htmlFor="longitude" className="label has-text-white">
                 Longitude
               </label>
@@ -191,6 +206,21 @@ export const Form: React.FC<Form_Table_Props> = ({
                 ></input>
               </div>
             </div>
+
+            <div className="field">
+              <label htmlFor="levelToAssign" className="label has-text-white">
+                Levels to assign to Location
+              </label>
+              <div className="control">
+                <input
+                  id="levelToAssign"
+                  onChange={handleLocationChange}
+                  className="input is-primary is-small"
+                  autoComplete="off"
+                ></input>
+              </div>
+            </div>
+
             <div className="control">
               <button type="submit" className="button is-primary">
                 Submit
