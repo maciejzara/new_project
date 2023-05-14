@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { Form_Table_Props } from "../types/Interfaces";
+import Select, { MultiValue } from "react-select";
 
 export const Form: React.FC<Form_Table_Props> = ({
   levels,
@@ -7,29 +8,44 @@ export const Form: React.FC<Form_Table_Props> = ({
   locations,
   setLocations,
 }) => {
-  const handleLevelsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // const { name, value } = e.target; // można zrobić destrukturyzację e.target
-    setLevels((prevLevels) =>
-      prevLevels.map((level) => ({
-        ...level,
-        attributes: {
-          ...level.attributes,
-          [e.target.name]: e.target.value,
-        },
-      }))
+  const [locationLevelIds, setLocationLevelIds] = useState<number[]>([]);
+  const [isLongitude, setIsLongitude] = useState("");
+  const [isLatitide, setIsLatitude] = useState("");
+
+  const isValidLongitude = (longitude: string) => {
+    const parsedLongitude = parseFloat(longitude);
+    return (
+      !isNaN(parsedLongitude) &&
+      parsedLongitude >= -180 &&
+      parsedLongitude <= 180
     );
   };
 
-  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLocations((prevLocations) =>
-      prevLocations.map((location) => ({
-        ...location,
-        attributes: {
-          ...location.attributes,
-          [e.target.name]: e.target.value,
-        },
-      }))
+  const isValidLatitude = (latitude: string) => {
+    const parsedLatitude = parseFloat(latitude);
+    return (
+      !isNaN(parsedLatitude) && parsedLatitude >= -90 && parsedLatitude <= 90
     );
+  };
+
+  const handleLongitudeChange = (e: any) => {
+    const latitude = e.target.value;
+    if (!isValidLongitude(latitude)) {
+      setIsLongitude("Please enter a valid longitude (between -180 and 180).");
+    } else {
+      setIsLongitude("");
+      return;
+    }
+  };
+
+  const handleLatitudeChange = (e: any) => {
+    const latitude = e.target.value;
+    if (!isValidLatitude(latitude)) {
+      setIsLatitude("Please enter a valid latitude (between -90 and 90).");
+    } else {
+      setIsLatitude("");
+      return;
+    }
   };
 
   // Add rendering Table after adding record - same for Locations
@@ -58,13 +74,24 @@ export const Form: React.FC<Form_Table_Props> = ({
 
   const addLocations = async (e: any) => {
     e.preventDefault();
-    const name = e.target.longitude.name;
+    const name = e.target.name.value;
     const longitude = e.target.longitude.value;
     const latitude = e.target.latitude.value;
     const continent = e.target.continent.value;
     const country = e.target.country.value;
+
+    if (!isValidLongitude(longitude)) {
+      setIsLongitude("This field is required");
+      return;
+    }
+
+    if (!isValidLatitude(latitude)) {
+      setIsLatitude("This field is required");
+      return;
+    }
+
     const response = await fetch(
-      "https://strapi-km.herokuapp.com/api/locations",
+      "https://strapi-km.herokuapp.com/api/locations?populate=*",
       {
         headers: {
           Authorization: `Bearer ${process.env.REACT_APP_API_KEY}`,
@@ -73,17 +100,21 @@ export const Form: React.FC<Form_Table_Props> = ({
         method: "POST",
         body: JSON.stringify({
           data: {
+            name,
             longitude,
             latitude,
             continent,
             country,
+            levels: locationLevelIds,
           },
         }),
       }
     );
     const data = await response.json();
     const newData = data.data;
+    console.log("NewData:", newData);
     setLocations((prevLocations) => [...prevLocations, newData]);
+    setLocationLevelIds([]);
     e.target.reset();
   };
 
@@ -102,7 +133,6 @@ export const Form: React.FC<Form_Table_Props> = ({
                 <input
                   type="text"
                   id="name"
-                  onChange={handleLevelsChange}
                   className="input is-primary is-small"
                   autoComplete="off"
                 ></input>
@@ -116,7 +146,6 @@ export const Form: React.FC<Form_Table_Props> = ({
               <div className="control">
                 <input
                   id="description"
-                  onChange={handleLevelsChange}
                   className="input is-primary is-small"
                   autoComplete="off"
                 ></input>
@@ -144,7 +173,6 @@ export const Form: React.FC<Form_Table_Props> = ({
               <div className="control">
                 <input
                   id="name"
-                  onChange={handleLocationChange}
                   className="input is-primary is-small"
                   autoComplete="off"
                 ></input>
@@ -158,10 +186,11 @@ export const Form: React.FC<Form_Table_Props> = ({
               <div className="control">
                 <input
                   id="longitude"
-                  onChange={handleLocationChange}
+                  onChange={handleLongitudeChange}
                   className="input is-primary is-small"
                   autoComplete="off"
                 ></input>
+                {isLongitude && <>{isLongitude}</>}
               </div>
             </div>
 
@@ -172,10 +201,11 @@ export const Form: React.FC<Form_Table_Props> = ({
               <div className="control">
                 <input
                   id="latitude"
-                  onChange={handleLocationChange}
+                  onChange={handleLatitudeChange}
                   className="input is-primary is-small"
                   autoComplete="off"
                 ></input>
+                {isLatitide && <>{isLatitide}</>}
               </div>
             </div>
 
@@ -186,7 +216,6 @@ export const Form: React.FC<Form_Table_Props> = ({
               <div className="control">
                 <input
                   id="continent"
-                  onChange={handleLocationChange}
                   className="input is-primary is-small"
                   autoComplete="off"
                 ></input>
@@ -200,7 +229,6 @@ export const Form: React.FC<Form_Table_Props> = ({
               <div className="control">
                 <input
                   id="country"
-                  onChange={handleLocationChange}
                   className="input is-primary is-small"
                   autoComplete="off"
                 ></input>
@@ -208,16 +236,23 @@ export const Form: React.FC<Form_Table_Props> = ({
             </div>
 
             <div className="field">
-              <label htmlFor="levelToAssign" className="label has-text-white">
-                Levels to assign to Location
+              <label htmlFor="country" className="label has-text-white">
+                Levels
               </label>
               <div className="control">
-                <input
-                  id="levelToAssign"
-                  onChange={handleLocationChange}
-                  className="input is-primary is-small"
-                  autoComplete="off"
-                ></input>
+                <Select
+                  className=" is-primary is-small has-text-black"
+                  options={levels.map((level) => ({
+                    value: level.id,
+                    label: level.attributes.name,
+                  }))}
+                  isMulti
+                  onChange={(
+                    newValue: MultiValue<{ value: number; label: string }>
+                  ) => {
+                    setLocationLevelIds(newValue.map((v) => v.value));
+                  }}
+                />
               </div>
             </div>
 

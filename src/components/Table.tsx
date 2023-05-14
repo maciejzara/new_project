@@ -11,6 +11,14 @@ export const Table: React.FC<Form_Table_Props> = ({
   const [selectedLevels, setSelectedLevels] = useState<
     Record<number, number[]>
   >([]);
+
+  // inny zapis Record - {[key: number]: number[]}
+  // const [selectedLevels, setSelectedLevels] = useState<{
+  //   [key: number]: number[];
+  // }>([]);
+
+  const [changedLocations, setChangedLocations] = useState<number[]>([]);
+
   //GET Levels
   useEffect(() => {
     const getLevels = async () => {
@@ -28,7 +36,7 @@ export const Table: React.FC<Form_Table_Props> = ({
       console.log("rerender Levels");
     };
     getLevels();
-  }, []);
+  }, [setLevels]);
 
   //GET Locations
   useEffect(() => {
@@ -48,7 +56,7 @@ export const Table: React.FC<Form_Table_Props> = ({
       console.log("rerender Locations", data.data);
     };
     getLocations();
-  }, []);
+  }, [setLocations]);
 
   // DELETE Level
   const deleteLevel = (id: number) => {
@@ -96,11 +104,6 @@ export const Table: React.FC<Form_Table_Props> = ({
     });
   };
 
-  const assignLevels = (id: number) => {
-    console.info("SelectedLevels:", selectedLevels);
-    updateLocation(id);
-  };
-
   return (
     <div>
       <div>
@@ -123,6 +126,7 @@ export const Table: React.FC<Form_Table_Props> = ({
                   >
                     Delete
                   </button>
+                  <button className="button">Play</button>
                 </td>
               </tr>
             ))}
@@ -152,13 +156,13 @@ export const Table: React.FC<Form_Table_Props> = ({
                 <td>{location.attributes.country}</td>
                 <td>
                   <Select
-                    defaultValue={location.attributes.levels.data.map(
+                    defaultValue={location.attributes.levels?.data?.map(
                       (level) => ({
                         value: level.id,
                         label: level.attributes.name,
                       })
                     )}
-                    options={levels.map((level) => ({
+                    options={levels?.map((level) => ({
                       value: level.id,
                       label: level.attributes.name,
                     }))}
@@ -170,16 +174,28 @@ export const Table: React.FC<Form_Table_Props> = ({
                         ...selectedLevels,
                         [location.id]: newValue.map((v) => v.value),
                       });
+
+                      setChangedLocations([...changedLocations, location.id]);
                     }}
                   />
                 </td>
                 <td>
                   <button
-                    className="button"
-                    onClick={() => assignLevels(location.id)}
+                    className={
+                      changedLocations.includes(location.id)
+                        ? "button has-background-warning"
+                        : "button"
+                    }
+                    onClick={() => {
+                      updateLocation(location.id);
+                      setChangedLocations(
+                        changedLocations.filter((id) => id !== location.id)
+                      );
+                    }}
                   >
                     Update
                   </button>
+
                   <button
                     className="button"
                     onClick={() => deleteLocation(location.id)}

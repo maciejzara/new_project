@@ -3,6 +3,7 @@ import "./App.css";
 import { Form } from "./components/Form";
 import { Table } from "./components/Table";
 import { LevelsTypeObject, LocationsTypesObject } from "./types/Interfaces";
+import { Game } from "../src/components/Game";
 
 const App: React.FC = () => {
   const [levels, setLevels] = useState<LevelsTypeObject[]>([]);
@@ -24,6 +25,7 @@ const App: React.FC = () => {
           locations={locations}
           setLocations={setLocations}
         />
+        <Game />
       </header>
     </div>
   );
