@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Form_Table_Props } from "../types/Interfaces";
+import { Form_Table_Props } from "types/Interfaces";
 import Select, { MultiValue } from "react-select";
+import Api from "services/Api";
+import { Link } from "react-router-dom";
 
 export const Table: React.FC<Form_Table_Props> = ({
   levels,
@@ -12,28 +14,13 @@ export const Table: React.FC<Form_Table_Props> = ({
     Record<number, number[]>
   >([]);
 
-  // inny zapis Record - {[key: number]: number[]}
-  // const [selectedLevels, setSelectedLevels] = useState<{
-  //   [key: number]: number[];
-  // }>([]);
-
   const [changedLocations, setChangedLocations] = useState<number[]>([]);
 
-  //GET Levels
+  //GET Levels AXIOS
   useEffect(() => {
     const getLevels = async () => {
-      const response = await fetch(
-        "https://strapi-km.herokuapp.com/api/levels",
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.REACT_APP_API_KEY}`,
-          },
-          method: "GET",
-        }
-      );
-      const data = await response.json();
-      setLevels(data.data);
-      console.log("rerender Levels");
+      const response = await Api.instance().AxiosGetLevels();
+      setLevels(response.data.data);
     };
     getLevels();
   }, [setLevels]);
@@ -41,32 +28,16 @@ export const Table: React.FC<Form_Table_Props> = ({
   //GET Locations
   useEffect(() => {
     const getLocations = async () => {
-      const response = await fetch(
-        "https://strapi-km.herokuapp.com/api/locations?populate=*",
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.REACT_APP_API_KEY}`,
-          },
-          method: "GET",
-        }
-      );
-
-      const data = await response.json();
-      setLocations(data.data);
-      console.log("rerender Locations", data.data);
+      const response = await Api.instance().AxiosGetLocations();
+      // console.log(response.data);
+      setLocations(response.data.data);
     };
     getLocations();
   }, [setLocations]);
 
   // DELETE Level
-  const deleteLevel = (id: number) => {
-    fetch(`https://strapi-km.herokuapp.com/api/levels/${id}`, {
-      headers: {
-        Authorization: `Bearer ${process.env.REACT_APP_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      method: "DELETE",
-    });
+  const deleteLevel = async (id: number) => {
+    await Api.instance().AxiosDeleteLevel(id);
     setLevels(levels.filter((level) => level.id !== id));
   };
 
@@ -89,10 +60,6 @@ export const Table: React.FC<Form_Table_Props> = ({
       ...locationById?.attributes,
       levels: selectedLevels[id],
     };
-    console.log({
-      Location: locationById,
-      LocationEdited: location,
-    });
 
     fetch(`https://strapi-km.herokuapp.com/api/locations/${id}`, {
       headers: {
@@ -115,7 +82,7 @@ export const Table: React.FC<Form_Table_Props> = ({
             </tr>
           </thead>
           <tbody>
-            {Array.from(levels).map((level) => (
+            {levels.map((level) => (
               <tr key={level.id}>
                 <td>{level.attributes.name}</td>
                 <td>{level.attributes.description}</td>
@@ -126,7 +93,9 @@ export const Table: React.FC<Form_Table_Props> = ({
                   >
                     Delete
                   </button>
-                  <button className="button">Play</button>
+                  <Link to="/map" className="button">
+                    Play
+                  </Link>
                 </td>
               </tr>
             ))}
@@ -147,7 +116,7 @@ export const Table: React.FC<Form_Table_Props> = ({
             </tr>
           </thead>
           <tbody>
-            {Array.from(locations).map((location) => (
+            {locations.map((location) => (
               <tr key={location.id}>
                 <td>{location.attributes.name}</td>
                 <td>{location.attributes.longitude}</td>
@@ -191,6 +160,7 @@ export const Table: React.FC<Form_Table_Props> = ({
                       setChangedLocations(
                         changedLocations.filter((id) => id !== location.id)
                       );
+                      console.log(changedLocations);
                     }}
                   >
                     Update

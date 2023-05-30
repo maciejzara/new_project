@@ -1,6 +1,7 @@
 // LEVELS types
 
 export interface LevelsTypeObject {
+  data: LevelsTypeObject;
   id: number;
   attributes: LevelsTypes;
 }
@@ -33,4 +34,16 @@ export interface Form_Table_Props {
   setLevels: React.Dispatch<React.SetStateAction<LevelsTypeObject[]>>;
   locations: LocationsTypesObject[];
   setLocations: React.Dispatch<React.SetStateAction<LocationsTypesObject[]>>;
+}
+
+// Markers
+
+export interface MarkersTypes {
+  lat: number;
+  lng: number;
+}
+
+export interface WorldMapProps {
+  markers: MarkersTypes[];
+  setMarkers: React.Dispatch<React.SetStateAction<MarkersTypes[]>>;
 }
