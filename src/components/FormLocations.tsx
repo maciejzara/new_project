@@ -3,10 +3,6 @@ import { Form_Table_Props } from "types/Interfaces";
 import Select, { MultiValue } from "react-select";
 import Api from "services/Api";
 
-// stan poczatkowy {longitude: "", latitude: "", error: ''}
-// stan on send{longitude: 'error', latitutde: '', error: ''}
-// stan correct {longitude: 1, latitude: 1, error:}
-
 export const FormLocations: React.FC<Form_Table_Props> = ({
   levels,
   locations,
@@ -61,11 +57,9 @@ export const FormLocations: React.FC<Form_Table_Props> = ({
   const handleLatitudeChange = (e: any) => {
     const latitude = e.target.value;
     if (!isValidLatitude(latitude)) {
-      // isLatitideCorrect = true
       setIsLatitude("Please enter a valid latitude (between -90 and 90).");
     } else {
       setIsLatitude("");
-      // isLatitideCorrect = true
       return;
     }
   };
@@ -88,30 +82,41 @@ export const FormLocations: React.FC<Form_Table_Props> = ({
       return;
     }
 
-    const response = await fetch(
-      `https://strapi-km.herokuapp.com/api/locations?populate=*`,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.REACT_APP_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-        body: JSON.stringify({
-          data: {
-            name,
-            longitude,
-            latitude,
-            continent,
-            country,
-            levels: locationLevelIds,
-          },
-        }),
-      }
+    // const response = await fetch(
+    //   `https://strapi-km.herokuapp.com/api/locations?populate=*`,
+    //   {
+    //     headers: {
+    //       Authorization: `Bearer ${process.env.REACT_APP_API_KEY}`,
+    //       "Content-Type": "application/json",
+    //     },
+    //     method: "POST",
+    //     body: JSON.stringify({
+    //       data: {
+    //         name,
+    //         latitude,
+    //         longitude,
+    //         continent,
+    //         country,
+    //         levels: locationLevelIds,
+    //       },
+    //     }),
+    //   }
+    // );
+    // const data = await response.json();
+    // const newData = data.data;
+    // console.log("NewData:", newData);
+    // setLocations((prevLocations) => [...prevLocations, newData]);
+
+    // AXIOS
+    const response = await Api.instance().AxiosAddLocation(
+      name,
+      latitude,
+      longitude,
+      continent,
+      country,
+      locationLevelIds
     );
-    const data = await response.json();
-    const newData = data.data;
-    console.log("NewData:", newData);
-    setLocations((prevLocations) => [...prevLocations, newData]);
+    setLocations([...locations, response.data.data]);
     setLocationLevelIds([]);
     e.target.reset();
   };

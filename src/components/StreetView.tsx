@@ -1,13 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
 import { Form_Table_Props } from "../types/Interfaces";
-import Api from "services/Api";
 
 export const StreetView: React.FC<Pick<Form_Table_Props, "locations">> = ({
   locations,
 }) => {
   const [locationIndex, setLocationIndex] = useState(0);
-
   const [streetPosition, setStreetPosition] = useState({
     lat: parseFloat(locations[locationIndex].attributes.latitude),
     lng: parseFloat(locations[locationIndex].attributes.longitude),

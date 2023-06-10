@@ -21,6 +21,8 @@ export const Table: React.FC<Form_Table_Props> = ({
     const getLevels = async () => {
       const response = await Api.instance().AxiosGetLevels();
       setLevels(response.data.data);
+      console.table(response.data.data);
+      console.log(response.data);
     };
     getLevels();
   }, [setLevels]);
@@ -42,33 +44,31 @@ export const Table: React.FC<Form_Table_Props> = ({
   };
 
   // DELETE Locations
-  const deleteLocation = (id: number) => {
-    fetch(`https://strapi-km.herokuapp.com/api/locations/${id}`, {
-      headers: {
-        Authorization: `Bearer ${process.env.REACT_APP_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      method: "DELETE",
-    });
+  const deleteLocation = async (id: number) => {
+    await Api.instance().AxiosDeleteLocation(id);
     setLocations(locations.filter((location) => location.id !== id));
   };
 
   //UPDATE Location
   const updateLocation = (id: number) => {
     const locationById = locations.find((location) => location.id === id);
+
+    if (!locationById) return;
     const location = {
-      ...locationById?.attributes,
+      ...locationById.attributes,
       levels: selectedLevels[id],
     };
 
-    fetch(`https://strapi-km.herokuapp.com/api/locations/${id}`, {
-      headers: {
-        Authorization: `Bearer ${process.env.REACT_APP_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      method: "PUT",
-      body: JSON.stringify({ data: location }),
-    });
+    Api.instance().AxiosUpdateLocation(id, location);
+
+    // fetch(`https://strapi-km.herokuapp.com/api/locations/${id}`, {
+    //   headers: {
+    //     Authorization: `Bearer ${process.env.REACT_APP_API_KEY}`,
+    //     "Content-Type": "application/json",
+    //   },
+    //   method: "PUT",
+    //   body: JSON.stringify({ data: location }),
+    // });
   };
 
   return (
@@ -160,7 +160,6 @@ export const Table: React.FC<Form_Table_Props> = ({
                       setChangedLocations(
                         changedLocations.filter((id) => id !== location.id)
                       );
-                      console.log(changedLocations);
                     }}
                   >
                     Update

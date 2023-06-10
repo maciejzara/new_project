@@ -1,16 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import { FormLevels } from "components/FormLevels";
 import { FormLocations } from "components/FormLocations";
 import { Table } from "components/Table";
-import {
-  LevelsTypeObject,
-  LocationsTypesObject,
-  Form_Table_Props,
-} from "types/Interfaces";
-
-// import { StreetView } from "./components/StreetView";
-// działa ale bez API
-// import { StreetViewPanorama } from "../src/components/StreetViewPanorama";
+import { Form_Table_Props } from "types/Interfaces";
 
 export const MainComponent: React.FC<Form_Table_Props> = ({
   levels,
@@ -18,9 +10,6 @@ export const MainComponent: React.FC<Form_Table_Props> = ({
   locations,
   setLocations,
 }) => {
-  // const [levels, setLevels] = useState<LevelsTypeObject[]>([]);
-  // const [locations, setLocations] = useState<LocationsTypesObject[]>([]);
-
   return (
     <>
       <div className="columns">

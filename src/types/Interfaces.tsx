@@ -14,6 +14,7 @@ export interface LevelsTypes {
 // LOCATION types
 
 export interface LocationsTypesObject {
+  data: LocationsTypesObject;
   id: number;
   attributes: LocationsTypes;
 }
