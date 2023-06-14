@@ -1,47 +1,32 @@
 import React, { useState } from "react";
 import "./App.css";
-import { Form } from "./components/Form";
-import { Table } from "./components/Table";
+import { MainComponent } from "components/MainComponent";
+import { Routes, Route } from "react-router-dom";
+import { GameComponent } from "components/GameComponent";
+import { LevelsTypeObject, LocationsTypesObject } from "types/Interfaces";
 
-function App() {
-  const [levels, setLevels] = useState([]);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-
-  const [locations, setLocations] = useState([]);
-  const [longitude, setLongitude] = useState("");
-  const [latitude, setLatitude] = useState("");
-  const [contitnet, setContinent] = useState("");
-  const [country, setCountry] = useState("");
-
-  // Która opcja jest lepsza ? Czy może useRef?
-  // const [levels, setLevels] = useState({name:"", description: ""});
-  // const [locations, setLocations] = useState({longitude: "", latitude: "", continent: "", country: ""});
-
+const App: React.FC = () => {
+  const [levels, setLevels] = useState<LevelsTypeObject[]>([]);
+  const [locations, setLocations] = useState<LocationsTypesObject[]>([]);
   return (
     <div className="App">
-      <header className="App-header">
-        <Form
-          levels={levels}
-          setLevels={setLevels}
-          setName={setName}
-          setDescription={setDescription}
-          setLongitude={setLongitude}
-          setLatitude={setLatitude}
-          setContinent={setContinent}
-          setCountry={setCountry}
-          locations={locations}
-          setLocations={setLocations}
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <MainComponent
+              levels={levels}
+              setLevels={setLevels}
+              locations={locations}
+              setLocations={setLocations}
+            />
+          }
         />
-        <Table
-          levels={levels}
-          setLevels={setLevels}
-          locations={locations}
-          setLocations={setLocations}
-        />
-      </header>
+        <Route path="/map" element={<GameComponent locations={locations} />} />
+      </Routes>
     </div>
   );
-}
+};
 
+//location/1
 export default App;

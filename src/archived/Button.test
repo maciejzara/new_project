@@ -1,0 +1,78 @@
+import { render, screen, fireEvent } from "@testing-library/react";
+import { Button } from "./Button";
+
+// describe("Button", () => {
+//   it("renders Button", () => {
+//     //Given
+//     const { container } = render(<Button />);
+//     //When
+//     //*
+
+//     //Then
+//     const element = screen.getByText("Click me!");
+//     expect(element).toBeInTheDocument();
+//   });
+//   describe("for error prop", () => {
+//     describe("if value is true", () => {
+//       it("render Blocked text", () => {
+//         //Given
+//         const { container } = render(<Button error={true} />);
+//         //When
+//         //*
+
+//         //Then
+//         const element = screen.getByText("Blocked");
+//         expect(element).toBeInTheDocument();
+//       });
+//     });
+//     describe("if value is false", () => {
+//       it("render Click me! text", () => {
+//         //Given
+//         const { container } = render(<Button error={false} />);
+//         //When
+//         //*
+//         container.querySelector("button").click();
+//         //Then
+//         const element = screen.getByText("Click me!");
+//         expect(element).toBeInTheDocument();
+//       });
+//     });
+//   });
+//   describe("onButtonClick", () => {
+//     // it("should change color", () => {
+//     //   const onClick = jest.fn();
+//     //   expect(onClick).toBeCalledTimes(1);
+//     // });
+//   });
+// });
+
+describe("Button", () => {
+  it("should render button name as Blocked when error=true", () => {
+    render(<Button error={true} />);
+    const buttonElement = screen.getByText("Blocked");
+    expect(buttonElement).toBeInTheDocument();
+  });
+
+  it("should render button with error-false", () => {
+    render(<Button />);
+    const buttonElement = screen.getByText("Click me!");
+    expect(buttonElement).toBeInTheDocument();
+  });
+
+  it("is button element in document", () => {
+    render(<Button />);
+    const buttonElement = screen.getByRole("button");
+    expect(buttonElement).toBeInTheDocument();
+  });
+
+  test("do onClick change state", () => {
+    render(<Button />);
+    const buttonElement = screen.getByRole("button");
+    expect(buttonElement).toHaveStyle({ backgroundColor: "" });
+
+    fireEvent.click(buttonElement);
+    expect(buttonElement).toHaveStyle({ backgroundColor: "red" });
+    fireEvent.click(buttonElement);
+    expect(buttonElement).toHaveStyle({ backgroundColor: "" });
+  });
+});
