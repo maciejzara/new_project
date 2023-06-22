@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Form_Table_Props } from "types/Interfaces";
 import Select, { MultiValue } from "react-select";
 import Api from "services/Api";
+import useGameContext from "context/useGameContext";
 
-export const FormLocations: React.FC<Form_Table_Props> = ({
-  levels,
-  locations,
-  setLocations,
-}) => {
+export const FormLocations: React.FC = () => {
+  const { levels, locations, setLocations } = useGameContext();
+
   const [locationLevelIds, setLocationLevelIds] = useState<number[]>([]);
 
   const [isLongitude, setIsLongitude] = useState("");
@@ -81,31 +79,6 @@ export const FormLocations: React.FC<Form_Table_Props> = ({
       setIsLatitude("This field is required");
       return;
     }
-
-    // const response = await fetch(
-    //   `https://strapi-km.herokuapp.com/api/locations?populate=*`,
-    //   {
-    //     headers: {
-    //       Authorization: `Bearer ${process.env.REACT_APP_API_KEY}`,
-    //       "Content-Type": "application/json",
-    //     },
-    //     method: "POST",
-    //     body: JSON.stringify({
-    //       data: {
-    //         name,
-    //         latitude,
-    //         longitude,
-    //         continent,
-    //         country,
-    //         levels: locationLevelIds,
-    //       },
-    //     }),
-    //   }
-    // );
-    // const data = await response.json();
-    // const newData = data.data;
-    // console.log("NewData:", newData);
-    // setLocations((prevLocations) => [...prevLocations, newData]);
 
     // AXIOS
     const response = await Api.instance().AxiosAddLocation(

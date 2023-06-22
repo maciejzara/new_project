@@ -2,35 +2,19 @@ import React from "react";
 import { FormLevels } from "components/FormLevels";
 import { FormLocations } from "components/FormLocations";
 import { Table } from "components/Table";
-import { Form_Table_Props } from "types/Interfaces";
 
-export const MainComponent: React.FC<Form_Table_Props> = ({
-  levels,
-  setLevels,
-  locations,
-  setLocations,
-}) => {
+export const MainComponent: React.FC = () => {
   return (
     <>
       <div className="columns">
         <div className="column">
-          <FormLevels levels={levels} setLevels={setLevels} />
+          <FormLevels />
         </div>
         <div className="column">
-          <FormLocations
-            levels={levels}
-            setLevels={setLevels}
-            locations={locations}
-            setLocations={setLocations}
-          />
+          <FormLocations />
         </div>
       </div>
-      <Table
-        levels={levels}
-        setLevels={setLevels}
-        locations={locations}
-        setLocations={setLocations}
-      />
+      <Table />
     </>
   );
 };

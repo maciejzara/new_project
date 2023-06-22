@@ -1,28 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { Form_Table_Props } from "types/Interfaces";
+import { LevelsTypeObject, LocationsTypesObject } from "types/Interfaces";
 import Select, { MultiValue } from "react-select";
 import Api from "services/Api";
 import { Link } from "react-router-dom";
+import useGameContext from "context/useGameContext";
 
-export const Table: React.FC<Form_Table_Props> = ({
-  levels,
-  setLevels,
-  locations,
-  setLocations,
-}) => {
+export const Table: React.FC = () => {
   const [selectedLevels, setSelectedLevels] = useState<
     Record<number, number[]>
   >([]);
-
   const [changedLocations, setChangedLocations] = useState<number[]>([]);
+
+  const { levels, setLevels, locations, setLocations, setAssignedLevels } =
+    useGameContext();
 
   //GET Levels AXIOS
   useEffect(() => {
     const getLevels = async () => {
       const response = await Api.instance().AxiosGetLevels();
       setLevels(response.data.data);
-      console.table(response.data.data);
-      console.log(response.data);
     };
     getLevels();
   }, [setLevels]);
@@ -31,11 +27,25 @@ export const Table: React.FC<Form_Table_Props> = ({
   useEffect(() => {
     const getLocations = async () => {
       const response = await Api.instance().AxiosGetLocations();
-      // console.log(response.data);
       setLocations(response.data.data);
+
+      // Tablica ze ID Leveli i przypisanymi do niego lokalizacjami
+      const assignedLevelsData: Record<number, LocationsTypesObject[]> = {};
+      response.data.data.forEach((location: LocationsTypesObject) => {
+        const locationLevels = location.attributes.levels?.data || [];
+        locationLevels.forEach((level: LevelsTypeObject) => {
+          const levelId = level.id;
+          if (assignedLevelsData[levelId]) {
+            assignedLevelsData[levelId].push(location);
+          } else {
+            assignedLevelsData[levelId] = [location];
+          }
+        });
+      });
+      setAssignedLevels(assignedLevelsData);
     };
     getLocations();
-  }, [setLocations]);
+  }, [setAssignedLevels, setLocations]);
 
   // DELETE Level
   const deleteLevel = async (id: number) => {
@@ -60,15 +70,6 @@ export const Table: React.FC<Form_Table_Props> = ({
     };
 
     Api.instance().AxiosUpdateLocation(id, location);
-
-    // fetch(`https://strapi-km.herokuapp.com/api/locations/${id}`, {
-    //   headers: {
-    //     Authorization: `Bearer ${process.env.REACT_APP_API_KEY}`,
-    //     "Content-Type": "application/json",
-    //   },
-    //   method: "PUT",
-    //   body: JSON.stringify({ data: location }),
-    // });
   };
 
   return (
@@ -93,7 +94,7 @@ export const Table: React.FC<Form_Table_Props> = ({
                   >
                     Delete
                   </button>
-                  <Link to="/map" className="button">
+                  <Link to={`/map/${level.id}`} className="button">
                     Play
                   </Link>
                 </td>
@@ -143,7 +144,6 @@ export const Table: React.FC<Form_Table_Props> = ({
                         ...selectedLevels,
                         [location.id]: newValue.map((v) => v.value),
                       });
-
                       setChangedLocations([...changedLocations, location.id]);
                     }}
                   />

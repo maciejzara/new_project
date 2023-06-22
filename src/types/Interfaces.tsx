@@ -47,4 +47,16 @@ export interface MarkersTypes {
 export interface WorldMapProps {
   markers: MarkersTypes[];
   setMarkers: React.Dispatch<React.SetStateAction<MarkersTypes[]>>;
+  center: {
+    lat: number;
+    lng: number;
+  };
+  setCenter: React.Dispatch<
+    React.SetStateAction<{
+      lat: number;
+      lng: number;
+    }>
+  >;
+  zoom: number;
+  // setZoom: React.Dispatch<React.SetStateAction<number>>;
 }

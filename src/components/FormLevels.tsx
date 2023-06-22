@@ -1,6 +1,6 @@
 import React, { FormEvent } from "react";
-import { Form_Table_Props } from "types/Interfaces";
 import Api from "services/Api";
+import useGameContext from "context/useGameContext";
 
 interface FormElements extends HTMLFormControlsCollection {
   name: HTMLInputElement;
@@ -12,9 +12,9 @@ interface LevelForm extends HTMLFormElement {
 }
 
 // ADD Levels Axios
-export const FormLevels: React.FC<
-  Pick<Form_Table_Props, "levels" | "setLevels">
-> = ({ levels, setLevels }) => {
+export const FormLevels: React.FC = () => {
+  const { levels, setLevels } = useGameContext();
+
   // ADD Levels Axios with Instance
   const addLevels = async (e: FormEvent<LevelForm>) => {
     e.preventDefault();
