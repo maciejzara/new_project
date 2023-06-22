@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { Table } from "./Table";
+import { Api } from "../services/Api";
 
 const axios = require("axios");
 

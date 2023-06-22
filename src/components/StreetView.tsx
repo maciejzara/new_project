@@ -1,15 +1,50 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect } from "react";
 import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
-import { Form_Table_Props } from "../types/Interfaces";
+import useGameContext from "context/useGameContext";
+import { useParams } from "react-router-dom";
 
-export const StreetView: React.FC<Pick<Form_Table_Props, "locations">> = ({
-  locations,
+interface StreetViewProps {
+  displayPosition: StreetViewPosition | undefined;
+  setDisplayPosition: React.Dispatch<
+    React.SetStateAction<StreetViewPosition | undefined>
+  >;
+  streetPositions: StreetViewPosition[];
+  setStreetPositions: React.Dispatch<
+    React.SetStateAction<StreetViewPosition[]>
+  >;
+}
+
+interface StreetViewPosition {
+  lat: number;
+  lng: number;
+}
+
+export const StreetView: React.FC<StreetViewProps> = ({
+  displayPosition,
+  setDisplayPosition,
+  streetPositions,
+  setStreetPositions,
 }) => {
-  const [locationIndex, setLocationIndex] = useState(0);
-  const [streetPosition, setStreetPosition] = useState({
-    lat: parseFloat(locations[locationIndex].attributes.latitude),
-    lng: parseFloat(locations[locationIndex].attributes.longitude),
-  });
+  const { assignedLevels } = useGameContext();
+
+  const { levelId } = useParams();
+
+  useEffect(() => {
+    const newLevelId = levelId ? +levelId : 0;
+    const positions = assignedLevels[newLevelId];
+    const latLngPositions = positions.map((position) => ({
+      lat: parseFloat(position.attributes.latitude),
+      lng: parseFloat(position.attributes.longitude),
+    }));
+
+    setStreetPositions(latLngPositions);
+  }, []);
+
+  useEffect(() => {
+    if (streetPositions.length > 0) {
+      setDisplayPosition(streetPositions[0]);
+    }
+  }, [streetPositions]);
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: `${process.env.REACT_APP_GOOGLE_API_KEY}`,
@@ -20,7 +55,7 @@ export const StreetView: React.FC<Pick<Form_Table_Props, "locations">> = ({
       new window.google.maps.StreetViewPanorama(
         document.getElementById("map") as HTMLElement,
         {
-          position: streetPosition,
+          position: displayPosition,
           linksControl: false,
           enableCloseButton: false,
           disableDefaultUI: true,
@@ -32,39 +67,27 @@ export const StreetView: React.FC<Pick<Form_Table_Props, "locations">> = ({
         }
       );
     },
-    [streetPosition]
+    [displayPosition]
   );
 
   useEffect(() => {
     if (isLoaded) {
       onLoad();
     }
-  }, [isLoaded, onLoad, streetPosition]);
-
-  useEffect(() => {
-    setStreetPosition({
-      lat: parseFloat(locations[locationIndex].attributes.latitude),
-      lng: parseFloat(locations[locationIndex].attributes.longitude),
-    });
-  }, [locationIndex, locations]);
-
-  const getNextLocation = () => {
-    setLocationIndex((prevIndex) => (prevIndex + 1) % locations.length);
-  };
+  }, [isLoaded, onLoad]);
 
   return (
     <div>
       {isLoaded ? (
         <GoogleMap
           mapContainerStyle={{ width: "800px", height: "600px" }}
-          center={streetPosition}
+          center={displayPosition}
           id="map"
           onLoad={onLoad}
         ></GoogleMap>
       ) : (
         <div>Loading...</div>
       )}
-      <button onClick={getNextLocation}>Next Location</button>
     </div>
   );
 };

@@ -2,10 +2,16 @@ import React, { useState } from "react";
 import { GoogleMap, useJsApiLoader, MarkerF } from "@react-google-maps/api";
 import { WorldMapProps } from "types/Interfaces";
 
-export const WorldMap: React.FC<WorldMapProps> = ({ markers, setMarkers }) => {
-  const [mapCenter, setMapCenter] = useState({
-    lat: 54.913793,
-    lng: 9.7790408,
+export const WorldMap: React.FC<WorldMapProps> = ({
+  markers,
+  setMarkers,
+  center,
+  zoom,
+}) => {
+  const [containerStyle, setContainerStyle] = useState({
+    width: "400px",
+    height: "200px",
+    borderRadius: "20px",
   });
 
   const { isLoaded } = useJsApiLoader({
@@ -18,9 +24,7 @@ export const WorldMap: React.FC<WorldMapProps> = ({ markers, setMarkers }) => {
         lat: e.latLng.lat(),
         lng: e.latLng.lng(),
       };
-      setMarkers([...markers, newMarker]);
-      setMapCenter(newMarker);
-      console.log(markers);
+      setMarkers([newMarker]);
     }
   };
 
@@ -28,16 +32,35 @@ export const WorldMap: React.FC<WorldMapProps> = ({ markers, setMarkers }) => {
     <div>
       {isLoaded ? (
         <GoogleMap
-          mapContainerStyle={{ width: "400px", height: "200px" }}
-          center={mapCenter}
+          mapContainerStyle={containerStyle}
+          center={center}
           zoom={2}
           options={{
             zoomControl: true,
             scrollwheel: true,
             maxZoom: 14,
             minZoom: 2,
+            mapTypeControl: false,
+            streetViewControl: false,
+            fullscreenControl: false,
+            keyboardShortcuts: false,
+            draggableCursor: "default",
           }}
           onClick={placeMarkers}
+          onMouseOver={() =>
+            setContainerStyle({
+              width: "600px",
+              height: "400px",
+              borderRadius: "20px",
+            })
+          }
+          onMouseOut={() =>
+            setContainerStyle({
+              width: "400px",
+              height: "200px",
+              borderRadius: "20px",
+            })
+          }
         >
           {markers.map((marker: any, index: number) => (
             <MarkerF
