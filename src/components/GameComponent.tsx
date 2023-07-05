@@ -3,7 +3,8 @@ import { WorldMap } from "./WorldMap";
 import { StreetView } from "./StreetView";
 import "./GameComponent.css";
 import { MarkersTypes } from "types/Interfaces";
-// import useGameContext from "context/useGameContext";
+import { useParams } from "react-router-dom";
+import useGameContext from "context/useGameContext";
 
 interface StreetViewPosition {
   lat: number;
@@ -11,22 +12,29 @@ interface StreetViewPosition {
 }
 
 export const GameComponent: React.FC = () => {
+  const { assignedLevels, setGameData } = useGameContext();
+  const { levelId } = useParams();
+
   const [markers, setMarkers] = useState<MarkersTypes[]>([]);
   const [streetPositions, setStreetPositions] = useState<StreetViewPosition[]>(
     []
   );
   const [displayPosition, setDisplayPosition] = useState<StreetViewPosition>();
-
   const [center, setCenter] = useState({
     lat: 54.913793,
     lng: 9.7790408,
   });
+  const [zoom] = useState(2);
+  const [score, setScore] = useState<number>();
 
-  const [zoom, setZoom] = useState(2);
+  const locationsAssigned = assignedLevels[Number(levelId)];
+  const currentLocation = locationsAssigned.find(
+    (obj) =>
+      Number(obj.attributes.latitude) === displayPosition?.lat &&
+      Number(obj.attributes.longitude) === displayPosition.lng
+  );
 
-  // const { locations, assignedLevels } = useGameContext();
-
-  const getNextLocation = () => {
+  const nextLocation = () => {
     if (streetPositions.length > 0) {
       const currentIndex = streetPositions.findIndex(
         (position) => position === displayPosition
@@ -57,16 +65,29 @@ export const GameComponent: React.FC = () => {
           const d = R * c; // in metres
 
           const distance = d / 1000; // in kilimeters
-          const roundedToTwo = Number(distance.toFixed(2));
-          alert(`Distance: ${roundedToTwo} km`);
+          const distanceRounded = Number(distance.toFixed(2));
+          const points = Number(1 / distanceRounded);
+          const multipliedPoints = Number((points * 100000).toFixed(0));
+          alert(`Distance: ${distanceRounded} km, points: ${multipliedPoints}`);
+          setScore(multipliedPoints);
         });
 
-        //
-        //wyślij lat i lng do database
-
         const nextIndex = (currentIndex + 1) % streetPositions.length;
-
         setDisplayPosition(streetPositions[nextIndex]);
+
+        // STWORZ records w localStorage
+        // userName - już powinien być w stanie
+        // level.id mam - levelId
+        // location.id - currentLocation.id
+        // score - jest na dole w km
+
+        const userGameStatus = new Map();
+        userGameStatus.set(levelId, currentLocation?.id);
+        userGameStatus.set(currentLocation?.id, score);
+        setGameData((prevData) => ({
+          ...prevData,
+          levels: userGameStatus,
+        }));
 
         setMarkers([]);
       } else {
@@ -95,7 +116,7 @@ export const GameComponent: React.FC = () => {
           />
         </div>
       </div>
-      <button className="button" onClick={getNextLocation}>
+      <button className="button" onClick={nextLocation}>
         Next Location
       </button>
     </div>

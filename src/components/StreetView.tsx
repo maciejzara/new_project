@@ -31,7 +31,7 @@ export const StreetView: React.FC<StreetViewProps> = ({
 
   useEffect(() => {
     const newLevelId = levelId ? +levelId : 0;
-    const positions = assignedLevels[newLevelId];
+    const positions = assignedLevels[newLevelId]; // undefined
     const latLngPositions = positions.map((position) => ({
       lat: parseFloat(position.attributes.latitude),
       lng: parseFloat(position.attributes.longitude),
@@ -44,7 +44,7 @@ export const StreetView: React.FC<StreetViewProps> = ({
     if (streetPositions.length > 0) {
       setDisplayPosition(streetPositions[0]);
     }
-  }, [streetPositions]);
+  }, [streetPositions, setDisplayPosition]);
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: `${process.env.REACT_APP_GOOGLE_API_KEY}`,
