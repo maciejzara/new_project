@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { LevelsTypeObject, LocationsTypesObject } from "types/Interfaces";
+import React, { useState } from "react";
 import Select, { MultiValue } from "react-select";
 import Api from "services/Api";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import useGameContext from "context/useGameContext";
 
 export const Table: React.FC = () => {
@@ -11,41 +10,7 @@ export const Table: React.FC = () => {
   >([]);
   const [changedLocations, setChangedLocations] = useState<number[]>([]);
 
-  const { levels, setLevels, locations, setLocations, setAssignedLevels } =
-    useGameContext();
-
-  //GET Levels AXIOS
-  useEffect(() => {
-    const getLevels = async () => {
-      const response = await Api.instance().AxiosGetLevels();
-      setLevels(response.data.data);
-    };
-    getLevels();
-  }, [setLevels]);
-
-  //GET Locations
-  useEffect(() => {
-    const getLocations = async () => {
-      const response = await Api.instance().AxiosGetLocations();
-      setLocations(response.data.data);
-
-      // Tablica ze ID Leveli i przypisanymi do niego lokalizacjami
-      const assignedLevelsData: Record<number, LocationsTypesObject[]> = {};
-      response.data.data.forEach((location: LocationsTypesObject) => {
-        const locationLevels = location.attributes.levels?.data || [];
-        locationLevels.forEach((level: LevelsTypeObject) => {
-          const levelId = level.id;
-          if (assignedLevelsData[levelId]) {
-            assignedLevelsData[levelId].push(location);
-          } else {
-            assignedLevelsData[levelId] = [location];
-          }
-        });
-      });
-      setAssignedLevels(assignedLevelsData);
-    };
-    getLocations();
-  }, [setAssignedLevels, setLocations]);
+  const { levels, setLevels, locations, setLocations } = useGameContext();
 
   // DELETE Level
   const deleteLevel = async (id: number) => {
@@ -94,6 +59,7 @@ export const Table: React.FC = () => {
                   >
                     Delete
                   </button>
+
                   <Link to={`/map/${level.id}`} className="button">
                     Play
                   </Link>
