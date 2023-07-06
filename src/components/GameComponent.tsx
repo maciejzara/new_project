@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { WorldMap } from "./WorldMap";
 import { StreetView } from "./StreetView";
 import "./GameComponent.css";
-import { MarkersTypes } from "types/Interfaces";
+import { LocationsTypesObject, MarkersTypes } from "types/Interfaces";
 import { useParams } from "react-router-dom";
 import useGameContext from "context/useGameContext";
 
@@ -25,14 +25,11 @@ export const GameComponent: React.FC = () => {
     lng: 9.7790408,
   });
   const [zoom] = useState(2);
-  const [score, setScore] = useState<number>();
 
-  const locationsAssigned = assignedLevels[Number(levelId)];
-  const currentLocation = locationsAssigned.find(
-    (obj) =>
-      Number(obj.attributes.latitude) === displayPosition?.lat &&
-      Number(obj.attributes.longitude) === displayPosition.lng
-  );
+  useEffect(() => {
+    if (levelId)
+      setGameData((prevData) => ({ ...prevData, levelId: Number(levelId) }));
+  }, []);
 
   const nextLocation = () => {
     if (streetPositions.length > 0) {
@@ -41,36 +38,35 @@ export const GameComponent: React.FC = () => {
       );
 
       if (markers.length > 0) {
-        markers.forEach((item) => {
-          // Zaznaczona pozycja // const czy let
-          let markedLat = item.lat;
-          let markedLng = item.lng;
+        const marker = markers[0];
+        // Zaznaczona pozycja // const czy let
+        let markedLat = marker.lat;
+        let markedLng = marker.lng;
 
-          // Aktualna pozycja
-          const currentLat = displayPosition?.lat ?? 0;
-          const currentLng = displayPosition?.lng ?? 0;
+        // Aktualna pozycja
+        const currentLat = displayPosition?.lat ?? 0;
+        const currentLng = displayPosition?.lng ?? 0;
 
-          // console.log(assignedLevels);
-          const R = 6371e3; // metres
-          const φ1 = (markedLat * Math.PI) / 180; // φ, λ in radians
-          const φ2 = (currentLat * Math.PI) / 180;
-          const Δφ = ((currentLat - markedLat) * Math.PI) / 180;
-          const Δλ = ((currentLng - markedLng) * Math.PI) / 180;
+        // console.log(assignedLevels);
+        const R = 6371e3; // metres
+        const φ1 = (markedLat * Math.PI) / 180; // φ, λ in radians
+        const φ2 = (currentLat * Math.PI) / 180;
+        const Δφ = ((currentLat - markedLat) * Math.PI) / 180;
+        const Δλ = ((currentLng - markedLng) * Math.PI) / 180;
 
-          const a =
-            Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-            Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const a =
+          Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+          Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-          const d = R * c; // in metres
+        const d = R * c; // in metres
 
-          const distance = d / 1000; // in kilimeters
-          const distanceRounded = Number(distance.toFixed(2));
-          const points = Number(1 / distanceRounded);
-          const multipliedPoints = Number((points * 100000).toFixed(0));
-          alert(`Distance: ${distanceRounded} km, points: ${multipliedPoints}`);
-          setScore(multipliedPoints);
-        });
+        const distance = d / 1000; // in kilimeters
+        const distanceRounded = Number(distance.toFixed(2));
+        const points = Number(1 / distanceRounded);
+        const multipliedPoints = Number((points * 100000).toFixed(0));
+        alert(`Distance: ${distanceRounded} km, points: ${multipliedPoints}`);
+        const score = multipliedPoints;
 
         const nextIndex = (currentIndex + 1) % streetPositions.length;
         setDisplayPosition(streetPositions[nextIndex]);
@@ -81,13 +77,19 @@ export const GameComponent: React.FC = () => {
         // location.id - currentLocation.id
         // score - jest na dole w km
 
-        const userGameStatus = new Map();
-        userGameStatus.set(levelId, currentLocation?.id);
-        userGameStatus.set(currentLocation?.id, score);
-        setGameData((prevData) => ({
-          ...prevData,
-          levels: userGameStatus,
-        }));
+        const locationsAssigned = assignedLevels[Number(levelId)];
+        const cLocation = locationsAssigned?.find(
+          (obj) =>
+            Number(obj.attributes.latitude) === displayPosition?.lat &&
+            Number(obj.attributes.longitude) === displayPosition.lng
+        );
+
+        console.log("X:", cLocation?.id, score);
+        if (cLocation?.id && score)
+          setGameData((prevData) => ({
+            ...prevData,
+            locationScores: prevData.locationScores.set(cLocation?.id, score),
+          }));
 
         setMarkers([]);
       } else {

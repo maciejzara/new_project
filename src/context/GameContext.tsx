@@ -17,7 +17,8 @@ type ContextTypes = {
 
 interface gameDataStructureTypes {
   user: string;
-  levels: Map<any, any>;
+  levelId: number;
+  locationScores: Map<number, number>;
 }
 
 const GameContext = createContext<ContextTypes | undefined>(undefined);
@@ -49,36 +50,37 @@ export const GameProvider: React.FC<GameProviderTypes> = ({ children }) => {
       const response = await Api.instance().AxiosGetLocations();
       setLocations(response.data.data);
 
-      window.localStorage.setItem("LOCATIONS", JSON.stringify(locations));
-
       // Tablica ze ID Leveli i przypisanymi do niego lokalizacjami
-      const assignedLevelsData: Record<number, LocationsTypesObject[]> = {};
+      const assignedLocationToLevels: Record<number, LocationsTypesObject[]> =
+        {};
       response.data.data.forEach((location: LocationsTypesObject) => {
         const locationLevels = location.attributes.levels?.data || [];
         locationLevels.forEach((level: LevelsTypeObject) => {
-          const levelId = level.id;
-          if (assignedLevelsData[levelId]) {
-            assignedLevelsData[levelId].push(location);
+          if (assignedLocationToLevels[level.id]) {
+            assignedLocationToLevels[level.id].push(location);
           } else {
-            assignedLevelsData[levelId] = [location];
+            assignedLocationToLevels[level.id] = [location];
           }
         });
       });
-      setAssignedLevels(assignedLevelsData);
+      setAssignedLevels(assignedLocationToLevels);
+      console.log(assignedLocationToLevels);
     };
     getLocations();
-  }, [setAssignedLevels, setLocations, locations]);
+  }, []);
 
   const [gameData, setGameData] = useState({
     user: "",
-    levels: new Map(),
+    levelId: 0,
+    locationScores: new Map(),
   });
 
   useEffect(() => {
     const gameDataToStorage = {
-      user: gameData.user,
-      levels: Array.from(gameData.levels),
+      ...gameData,
+      locationScores: Array.from(gameData.locationScores),
     };
+    console.log(gameData.locationScores, Array.from(gameData.locationScores));
     localStorage.setItem("GAME_STATUS", JSON.stringify(gameDataToStorage));
   }, [gameData]);
 
@@ -87,7 +89,7 @@ export const GameProvider: React.FC<GameProviderTypes> = ({ children }) => {
     if (storedGameData) {
       const obj = JSON.parse(storedGameData);
       obj.levels = new Map(obj.levels);
-      console.log(obj);
+      console.log("obj", obj);
 
       // setGameData(gameData);
     }
@@ -103,6 +105,8 @@ export const GameProvider: React.FC<GameProviderTypes> = ({ children }) => {
     gameData,
     setGameData,
   };
+
+  // if (!assignedLevels) return <h1>Loading...</h1>;
 
   return (
     <GameContext.Provider value={contextValues}>

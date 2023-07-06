@@ -26,19 +26,18 @@ export const StreetView: React.FC<StreetViewProps> = ({
   setStreetPositions,
 }) => {
   const { assignedLevels } = useGameContext();
-
   const { levelId } = useParams();
 
   useEffect(() => {
     const newLevelId = levelId ? +levelId : 0;
     const positions = assignedLevels[newLevelId]; // undefined
-    const latLngPositions = positions.map((position) => ({
+    const latLngPositions = positions?.map((position) => ({
       lat: parseFloat(position.attributes.latitude),
       lng: parseFloat(position.attributes.longitude),
     }));
 
-    setStreetPositions(latLngPositions);
-  }, []);
+    setStreetPositions(latLngPositions || []);
+  }, [assignedLevels]);
 
   useEffect(() => {
     if (streetPositions.length > 0) {
